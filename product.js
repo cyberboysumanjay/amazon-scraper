@@ -8,7 +8,7 @@ const product = async(query) => {
         var feat = feat.split('<span class="a-list-item">')
         for (var i = 1; i < feat.length; i++) {
             try {
-                features.push(feat[i].split('</span>')[0].replaceAll('\n', ''))
+                features.push((feat[i].split('</span>')[0].replaceAll('\n', '')).replaceAll('"', "'"))
             } catch (err) {}
         }
 
@@ -16,14 +16,26 @@ const product = async(query) => {
         var features = [null]
     }
 
+
     try {
         var price = product_page.split('<span id="priceblock_ourprice" class="a-size-medium a-color-price priceBlockBuyingPriceString">')[1].split('</span>')[0]
         var original_price = product_page.split('<span class="priceBlockStrikePriceString a-text-strike">')[1].split('</span>')[0]
         if (!original_price) { var original_price = price }
     } catch (err) {
-        var price = (product_page.split('<span id="priceblock_ourprice" class="a-size-medium a-color-price priceBlockBuyingPriceString">')[1].split('</span>')[0]).split(' - ')[0]
-        var original_price = (product_page.split('<span id="priceblock_ourprice" class="a-size-medium a-color-price priceBlockBuyingPriceString">')[1].split('</span>')[0]).split(' - ')[1]
-        if (!original_price) { var original_price = price }
+        try {
+            var price = (product_page.split('<span id="priceblock_ourprice" class="a-size-medium a-color-price priceBlockBuyingPriceString">')[1].split('</span>')[0]).split(' - ')[0]
+            var original_price = (product_page.split('<span id="priceblock_ourprice" class="a-size-medium a-color-price priceBlockBuyingPriceString">')[1].split('</span>')[0]).split(' - ')[1]
+            if (!original_price) { var original_price = price }
+        } catch (er) {
+            try {
+                var price = product_page.split('<span id="priceblock_dealprice" class="a-size-medium a-color-price priceBlockDealPriceString">')[1].split('</span>')[0]
+                var original_price = product_page.split('<span class="priceBlockStrikePriceString a-text-strike">')[1].split('</span>')[0]
+                if (!original_price) { var original_price = price }
+            } catch (e) {
+                var price = null
+                var original_price = null
+            }
+        }
     }
 
     try {
